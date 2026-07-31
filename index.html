@@ -1,721 +1,1133 @@
 <!DOCTYPE html>
-<!-- saved from url=(0239)https://p9-flow-sign.byteimg.com/tos-cn-i-ik7evvg4ik/rc/pc/super_tool/775f32f0b0694ef3b390945eb62ee597.html?lk3s=8e244e95&rcl=20260725160238C70E5BCF5862ABB37012&rrcfp=cb23d0ed&x-expires=1785571427&x-signature=KzBfLr3SJd9cb3FICJ2ddH153R4%3D -->
-<html lang="zh-CN"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>亲戚计算器</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>亲戚计算器 · 理清家族关系</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F8F4F7;
+    --white: #FFFFFF;
+    --text: #2D2A2E;
+    --text-soft: #6B5D68;
+    --text-mute: #B8A8B3;
+    --accent: #C17D92;
+    --accent-light: #F2E4EA;
+    --accent-warm: #C8676E;
+    --accent-warm-light: #FBE8E6;
+    --surface: #FFFFFF;
+    --shadow-sm: 0 1px 3px rgba(100,80,90,0.06);
+    --shadow-md: 0 4px 14px rgba(100,80,90,0.10);
+    --shadow-lg: 0 8px 28px rgba(100,80,90,0.12);
+  }
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
-            background: #e0e5ec;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        .calculator {
-            width: 100%;
-            max-width: 500px;
-            background: #e0e5ec;
-            border-radius: 24px;
-            padding: 30px;
-        }
+  html, body { height: 100%; }
 
-        .display {
-            background: #e0e5ec;
-            border-radius: 16px;
-            padding: 25px;
-            margin-bottom: 30px;
-            min-height: 120px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            box-shadow: inset 4px 4px 8px #c8ccd3,
-                        inset -4px -4px 8px #f8faff;
-        }
+  body {
+    font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    background: #F4EFF3;
+    color: var(--text);
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
 
-        .relation-chain {
-            font-size: 16px;
-            color: #666;
-            margin-bottom: 15px;
-            line-height: 1.6;
-            word-break: break-all;
-        }
+  .app {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+    padding-top: calc(40px + env(safe-area-inset-top, 0px));
+    padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  }
 
-        .result {
-            font-size: 18px;
-            color: #333;
-            font-weight: 500;
-        }
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 34px;
+  }
+  .header h1 {
+    font-family: 'Noto Serif SC', 'Noto Sans SC', serif;
+    font-size: 28px;
+    font-weight: 900;
+    color: #3D2E35;
+    letter-spacing: 1px;
+  }
+  .header p {
+    font-size: 13px;
+    color: var(--text-mute);
+    margin-top: 6px;
+    font-weight: 400;
+  }
 
-        .result .label {
-            color: #666;
-            font-weight: normal;
-        }
+  /* ========== DISPLAY CARD ========== */
+  .display {
+    background: var(--surface);
+    border-radius: 24px;
+    padding: 32px 24px;
+    margin-bottom: 28px;
+    min-height: 180px;
+    display: flex; flex-direction: column; justify-content: center;
+    align-items: center;
+    text-align: center;
+    box-shadow: var(--shadow-md);
+  }
+  .display-chain {
+    font-size: 13px;
+    color: var(--text-soft);
+    margin-bottom: 14px;
+    min-height: 22px;
+    word-break: keep-all;
+    font-weight: 500;
+  }
+  .display-chain .chip {
+    display: inline-block;
+    padding: 4px 12px;
+    margin: 0 2px;
+    background: #F5EFF3;
+    border-radius: 14px;
+    color: #5D4A55;
+    font-weight: 600;
+    font-size: 12px;
+  }
+  .display-result {
+    font-size: 44px;
+    font-weight: 800;
+    color: #C17D92;
+    line-height: 1.2;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+  .display-result:empty::before {
+    content: '？';
+    color: var(--text-mute);
+    font-weight: 300;
+  }
+  .display-note {
+    font-size: 12px;
+    color: var(--text-mute);
+    margin-top: 4px;
+  }
+  .display-tags {
+    display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;
+    margin-top: 14px;
+  }
+  .display-tag {
+    padding: 5px 14px;
+    border-radius: 16px;
+    font-size: 12px;
+    font-weight: 600;
+    background: var(--accent-light);
+    color: #A05D72;
+  }
 
-        .result .name {
-            color: #5a67d8;
-            font-weight: 600;
-        }
+  /* ========== BUTTON GRID ========== */
+  .btn-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 20px;
+  }
 
-        .buttons {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 18px;
-        }
+  .btn {
+    padding: 18px 10px;
+    border-radius: 18px;
+    border: none;
+    font-size: 21px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: 'Noto Sans SC', sans-serif;
+    display: flex; align-items: center; justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+    transition: all 0.18s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    position: relative;
+    user-select: none;
+    -webkit-user-select: none;
+  }
 
-        .btn {
-            width: 100%;
-            aspect-ratio: 1;
-            border: none;
-            border-radius: 50%;
-            background: #e0e5ec;
-            font-size: 18px;
-            color: #555;
-            cursor: pointer;
-            transition: all 0.15s ease;
-            box-shadow: 5px 5px 10px #c8ccd3,
-                        -5px -5px 10px #f8faff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            user-select: none;
-        }
+  /* 家庭成员按钮 — 薰衣草色 */
+  .btn.family {
+    background: #ECE3F0;
+    color: #5D4770;
+    box-shadow: 0 2px 0 #D8CAE2, var(--shadow-sm);
+  }
+  .btn.family:hover {
+    background: #F2EBF5;
+    box-shadow: 0 3px 0 #D8CAE2, var(--shadow-md);
+    transform: translateY(-1px);
+  }
+  .btn.family:active {
+    background: #E0D4E8;
+    box-shadow: 0 1px 0 #C8B5D5;
+    transform: translateY(1px);
+  }
 
-        .btn:hover {
-            color: #5a67d8;
-        }
+  /* 配偶按钮 — 暖粉色 */
+  .btn.relation {
+    background: #FAEAEE;
+    color: #A55565;
+    box-shadow: 0 2px 0 #F0D0D8, var(--shadow-sm);
+  }
+  .btn.relation:hover {
+    background: #FDF2F4;
+    box-shadow: 0 3px 0 #F0D0D8, var(--shadow-md);
+    transform: translateY(-1px);
+  }
+  .btn.relation:active {
+    background: #F5DCE3;
+    box-shadow: 0 1px 0 #E5C0CA;
+    transform: translateY(1px);
+  }
 
-        .btn:active {
-            box-shadow: inset 3px 3px 6px #c8ccd3,
-                        inset -3px -3px 6px #f8faff;
-            transform: scale(0.98);
-        }
+  /* 撤销按钮 — 中性灰 */
+  .btn.action {
+    background: #EFECF0;
+    color: #8A7E88;
+    font-size: 18px;
+    box-shadow: 0 2px 0 #DDD7E0, var(--shadow-sm);
+  }
+  .btn.action:hover {
+    background: #F5F3F6;
+    box-shadow: 0 3px 0 #DDD7E0, var(--shadow-md);
+    transform: translateY(-1px);
+  }
+  .btn.action:active {
+    background: #E5DFE8;
+    box-shadow: 0 1px 0 #CEC5D5;
+    transform: translateY(1px);
+  }
 
-        .btn.ac {
-            color: #e53e3e;
-        }
+  /* AC 按钮 — 暖珊瑚色 */
+  .btn.accent {
+    background: #FBE4E2;
+    color: #C5565C;
+    box-shadow: 0 2px 0 #F2C8C6, var(--shadow-sm);
+  }
+  .btn.accent:hover {
+    background: #FDEDEB;
+    box-shadow: 0 3px 0 #F2C8C6, var(--shadow-md);
+    transform: translateY(-1px);
+  }
+  .btn.accent:active {
+    background: #F7D5D2;
+    box-shadow: 0 1px 0 #E8B5B2;
+    transform: translateY(1px);
+  }
 
-        .btn.back {
-            font-size: 20px;
-        }
+  /* Toast */
+  .toast {
+    position: fixed;
+    top: 28px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(50, 42, 48, 0.94);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: white;
+    padding: 11px 22px;
+    border-radius: 30px;
+    font-size: 13px;
+    font-weight: 500;
+    z-index: 1000;
+    font-family: 'Noto Sans SC', sans-serif;
+    box-shadow: var(--shadow-lg);
+    animation: toastIn 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+               toastOut 0.35s ease 1.6s forwards;
+    pointer-events: none;
+  }
 
-        .btn.mutual {
-            grid-column: span 1;
-            color: #5a67d8;
-        }
+  @keyframes toastIn {
+    from { opacity: 0; transform: translateX(-50%) translateY(-10px) scale(0.9); }
+    to   { opacity: 1; transform: translateX(-50%) translateY(0) scale(1); }
+  }
+  @keyframes toastOut {
+    from { opacity: 1; }
+    to   { opacity: 0; transform: translateX(-50%) translateY(-6px); }
+  }
 
-        .mutual-row {
-            display: flex;
-            justify-content: flex-start;
-            margin-top: 18px;
-        }
+  /* ========== RESPONSIVE ========== */
 
-        .mutual-row .btn {
-            width: 25%;
-            aspect-ratio: 1;
-        }
+  /* iPhone SE / 小屏 (≤ 374px) */
+  @media (max-width: 374px) {
+    .app { padding: 28px 12px 60px; padding-top: calc(28px + env(safe-area-inset-top, 0px)); padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px)); }
+    .btn-grid { gap: 10px; }
+    .btn { font-size: 17px; padding: 15px 6px; border-radius: 14px; }
+    .display { padding: 24px 16px; min-height: 150px; border-radius: 20px; }
+    .display-result { font-size: 34px; }
+    .header h1 { font-size: 22px; }
+    .header { margin-bottom: 24px; }
+  }
 
-        .header {
-            text-align: center;
-            margin-bottom: 20px;
-            font-size: 14px;
-            color: #888;
-        }
+  /* iPhone 12 / 13 / 14 标准 (375-393px) */
+  @media (min-width: 375px) and (max-width: 393px) {
+    .app { padding: 34px 18px 68px; padding-top: calc(34px + env(safe-area-inset-top, 0px)); padding-bottom: calc(68px + env(safe-area-inset-bottom, 0px)); }
+    .btn-grid { gap: 12px; }
+    .btn { font-size: 19px; padding: 16px 8px; border-radius: 16px; }
+    .display-result { font-size: 38px; }
+    .header h1 { font-size: 24px; }
+  }
 
-        .close-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: #e0e5ec;
-            box-shadow: 3px 3px 6px #c8ccd3,
-                        -3px -3px 6px #f8faff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            font-size: 12px;
-            color: #888;
-        }
+  /* iPhone 14 Pro Max / 15 Pro Max (414-430px, 高屏) */
+  @media (min-width: 414px) and (max-width: 430px) {
+    .app {
+      max-width: 430px;
+      padding: 44px 22px 90px;
+      padding-top: calc(44px + env(safe-area-inset-top, 0px));
+      padding-bottom: calc(90px + env(safe-area-inset-bottom, 0px));
+    }
+    .btn-grid { gap: 16px; }
+    .btn {
+      font-size: 21px;
+      padding: 20px 12px;
+      border-radius: 18px;
+    }
+    .btn.action { font-size: 19px; }
+    .display {
+      padding: 34px 24px;
+      min-height: 185px;
+      border-radius: 26px;
+      margin-bottom: 32px;
+    }
+    .display-result { font-size: 46px; }
+    .display-chain { font-size: 14px; }
+    .display-chain .chip { font-size: 13px; padding: 5px 13px; }
+    .header h1 { font-size: 28px; }
+    .header p { font-size: 13px; }
+    .header { margin-bottom: 36px; }
+  }
 
-        .minimize-btn {
-            position: absolute;
-            top: 15px;
-            right: 50px;
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            background: #e0e5ec;
-            box-shadow: 3px 3px 6px #c8ccd3,
-                        -3px -3px 6px #f8faff;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            font-size: 12px;
-            color: #888;
-        }
+  /* iPad / 平板 (≥ 600px) */
+  @media (min-width: 600px) {
+    .app {
+      max-width: 560px;
+      padding: 56px 32px 100px;
+      padding-top: calc(56px + env(safe-area-inset-top, 0px));
+      padding-bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+    }
+    .btn-grid { gap: 18px; }
+    .btn {
+      font-size: 24px;
+      padding: 22px 14px;
+      border-radius: 20px;
+    }
+    .btn.action { font-size: 20px; }
+    .display {
+      padding: 40px 32px;
+      min-height: 200px;
+      border-radius: 28px;
+      margin-bottom: 34px;
+    }
+    .display-result { font-size: 52px; }
+    .display-chain { font-size: 14px; }
+    .display-chain .chip { font-size: 13px; padding: 5px 14px; }
+    .header h1 { font-size: 32px; }
+    .header p { font-size: 14px; }
+    .header { margin-bottom: 40px; }
+  }
 
-        .container {
-            position: relative;
-            width: 100%;
-            max-width: 500px;
-        }
-    </style>
+  /* iPad Pro / 大屏 (≥ 900px) */
+  @media (min-width: 900px) {
+    .app {
+      max-width: 620px;
+      padding: 64px 40px 120px;
+      padding-top: calc(64px + env(safe-area-inset-top, 0px));
+      padding-bottom: calc(120px + env(safe-area-inset-bottom, 0px));
+    }
+    .btn-grid { gap: 22px; }
+    .btn {
+      font-size: 26px;
+      padding: 26px 16px;
+      border-radius: 22px;
+    }
+    .btn.action { font-size: 22px; }
+    .display-result { font-size: 58px; }
+    .header h1 { font-size: 36px; }
+  }
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="minimize-btn">⊖</div>
-        <div class="close-btn">✕</div>
-        <div class="calculator">
-            <div class="header">亲戚计算器</div>
-            <div class="display">
-                <div class="relation-chain" id="chain">我的</div>
-                <div class="result" id="result">
-                    <span class="label">我称呼Ta </span>
-                    <span class="name" id="target">自己</span>
-                </div>
-            </div>
-            <div class="buttons">
-                <button class="btn" onclick="addRelation(&#39;夫&#39;)">夫</button>
-                <button class="btn" onclick="addRelation(&#39;妻&#39;)">妻</button>
-                <button class="btn back" onclick="backspace()">⌫</button>
-                <button class="btn ac" onclick="clearAll()">AC</button>
-                
-                <button class="btn" onclick="addRelation(&#39;父&#39;)">父</button>
-                <button class="btn" onclick="addRelation(&#39;母&#39;)">母</button>
-                <button class="btn" onclick="addRelation(&#39;兄&#39;)">兄</button>
-                <button class="btn" onclick="addRelation(&#39;弟&#39;)">弟</button>
-                
-                <button class="btn" onclick="addRelation(&#39;姐&#39;)">姐</button>
-                <button class="btn" onclick="addRelation(&#39;妹&#39;)">妹</button>
-                <button class="btn" onclick="addRelation(&#39;子&#39;)">子</button>
-                <button class="btn" onclick="addRelation(&#39;女&#39;)">女</button>
-            </div>
-            <div class="mutual-row">
-                <button class="btn mutual" onclick="mutualCheck()">互查</button>
-            </div>
-        </div>
-    </div>
+<div class="app">
+  <div class="header">
+    <h1>亲戚计算器</h1>
+    <p>点出关系链，自动算称呼</p>
+  </div>
 
-    <script>
-        let chain = [];
-        let isReverse = false;
+  <div class="display" id="display">
+    <div class="display-chain" id="displayChain"></div>
+    <div class="display-result" id="displayResult"></div>
+    <div class="display-note" id="displayNote"></div>
+    <div class="display-tags" id="displayTags"></div>
+  </div>
 
-        // 亲戚关系映射表（以"我"为中心，男性视角为主，部分会区分性别）
-        // 格式: 关系链数组 -> 称呼
-        const relationMap = {
-            // 基础关系
-            '': '自己',
-            '父': '爸爸',
-            '母': '妈妈',
-            '兄': '哥哥',
-            '弟': '弟弟',
-            '姐': '姐姐',
-            '妹': '妹妹',
-            '子': '儿子',
-            '女': '女儿',
-            '夫': '丈夫',
-            '妻': '妻子',
+  <div class="btn-grid">
+    <button class="btn relation" onclick="addStep('h')">夫</button>
+    <button class="btn relation" onclick="addStep('w')">妻</button>
+    <button class="btn action" onclick="undoStep()" title="撤销">⌫</button>
+    <button class="btn accent" onclick="clearSteps()" title="全部清空">AC</button>
 
-            // 祖辈
-            '父,父': '爷爷',
-            '父,母': '奶奶',
-            '母,父': '外公',
-            '母,母': '外婆',
+    <button class="btn family" onclick="addStep('f')">父</button>
+    <button class="btn family" onclick="addStep('m')">母</button>
+    <button class="btn family" onclick="addStep('ob')">兄</button>
+    <button class="btn family" onclick="addStep('lb')">弟</button>
 
-            // 父系兄弟姐妹
-            '父,兄': '伯伯',
-            '父,弟': '叔叔',
-            '父,姐': '姑妈',
-            '父,妹': '姑姑',
+    <button class="btn family" onclick="addStep('os')">姐</button>
+    <button class="btn family" onclick="addStep('ls')">妹</button>
+    <button class="btn family" onclick="addStep('s')">子</button>
+    <button class="btn family" onclick="addStep('d')">女</button>
+  </div>
+</div>
 
-            // 母系兄弟姐妹
-            '母,兄': '舅舅',
-            '母,弟': '舅舅',
-            '母,姐': '姨妈',
-            '母,妹': '姨妈',
+<script>
+// ==================== 关系数据库 ====================
 
-            // 堂表亲（父辈的孩子）
-            '父,兄,子': '堂哥/堂弟',
-            '父,兄,女': '堂姐/堂妹',
-            '父,弟,子': '堂哥/堂弟',
-            '父,弟,女': '堂姐/堂妹',
-            '父,姐,子': '表哥/表弟',
-            '父,姐,女': '表姐/表妹',
-            '父,妹,子': '表哥/表弟',
-            '父,妹,女': '表姐/表妹',
-            '母,兄,子': '表哥/表弟',
-            '母,兄,女': '表姐/表妹',
-            '母,弟,子': '舅表哥/舅表弟',
-            '母,弟,女': '舅表姐/舅表妹',
-            '母,姐,子': '表哥/表弟',
-            '母,姐,女': '表姐/表妹',
-            '母,妹,子': '表哥/表弟',
-            '母,妹,女': '表姐/表妹',
+// gen: 正值=长辈, 0=同辈, 负值=晚辈
+// side: 'p'=父系, 'm'=母系, 'b'=both
+const DB = {};
 
-            // 兄弟姐妹的孩子
-            '兄,子': '侄子',
-            '兄,女': '侄女',
-            '弟,子': '侄子',
-            '弟,女': '侄女',
-            '姐,子': '外甥',
-            '姐,女': '外甥女',
-            '妹,子': '外甥',
-            '妹,女': '外甥女',
+function d(title, gen, note, maleOnly) { return {title,gen,note:note||'',maleOnly:!!maleOnly}; }
 
-            // 孙辈
-            '子,子': '孙子',
-            '子,女': '孙女',
-            '女,子': '外孙',
-            '女,女': '外孙女',
+// -- 核心（自己、配偶、直系） --
+DB[''] = d('自己', 0);
+DB['h'] = d('丈夫', 0, '', true);
+DB['w'] = d('妻子', 0);
 
-            // 配偶的父母
-            '夫,父': '公公',
-            '夫,母': '婆婆',
-            '妻,父': '岳父',
-            '妻,母': '岳母',
+// -- 1 代直系 --
+DB['f'] = d('父亲', 1);
+DB['m'] = d('母亲', 1);
+DB['s'] = d('儿子', -1);
+DB['d'] = d('女儿', -1);
 
-            // 配偶的兄弟姐妹
-            '夫,兄': '大伯子',
-            '夫,弟': '小叔子',
-            '夫,姐': '大姑子',
-            '夫,妹': '小姑子',
-            '妻,兄': '大舅子',
-            '妻,弟': '小舅子',
-            '妻,姐': '大姨子',
-            '妻,妹': '小姨子',
+// -- 2 代直系 --
+DB['f,f'] = d('祖父', 2);   DB['f,m'] = d('祖母', 2);
+DB['m,f'] = d('外祖父', 2);  DB['m,m'] = d('外祖母', 2);
+DB['s,s'] = d('孙子', -2);   DB['s,d'] = d('孙女', -2);
+DB['d,s'] = d('外孙', -2);   DB['d,d'] = d('外孙女', -2);
 
-            // 兄弟姐妹的配偶
-            '兄,妻': '嫂子',
-            '弟,妻': '弟媳',
-            '姐,夫': '姐夫',
-            '妹,夫': '妹夫',
+// -- 3 代直系 --
+(function(){
+  var a=['f','m'], b=['f','m'], c=['f','m'];
+  var pre={'f,f':'曾','f,m':'曾','m,f':'外曾','m,m':'外曾'};
+  var suf={'f':'祖父','m':'祖母'};
+  a.forEach(function(x){
+    b.forEach(function(y){
+      c.forEach(function(z){
+        DB[x+','+y+','+z]=d(pre[x+','+y]+suf[z],3);
+      });
+    });
+  });
+  var a2=['s','d'], b2=['s','d'], c2=['s','d'];
+  var pre2={'s,s':'曾','s,d':'曾','d,s':'曾外','d,d':'曾外'};
+  var suf2={'s':'孙','d':'孙女'};
+  a2.forEach(function(x){
+    b2.forEach(function(y){
+      c2.forEach(function(z){
+        DB[x+','+y+','+z]=d(pre2[x+','+y]+suf2[z],-3);
+      });
+    });
+  });
+})();
 
-            // 儿媳、女婿
-            '子,妻': '儿媳',
-            '女,夫': '女婿',
+// -- 4 代直系 --
+(function(){
+  var b4=['f,f,f,f','f,f,f,m','f,f,m,f','f,f,m,m','f,m,f,f','f,m,f,m','f,m,m,f','f,m,m,m',
+           'm,f,f,f','m,f,f,m','m,f,m,f','m,f,m,m','m,m,f,f','m,m,f,m','m,m,m,f','m,m,m,m'];
+  var t4=['高祖父','高祖母','高外祖父','高外祖母','曾外曾祖父','曾外曾祖母','曾外曾外祖父','曾外曾外祖母',
+          '外高祖父','外高祖母','外高外祖父','外高外祖母','外曾外曾祖父','外曾外曾祖母','外曾外曾外祖父','外曾外曾外祖母'];
+  for(var i=0;i<b4.length;i++) DB[b4[i]]=d(t4[i],4);
+  // 4 代孙
+  var s4=['s,s,s,s','s,s,s,d','s,s,d,s','s,s,d,d','s,d,s,s','s,d,s,d','s,d,d,s','s,d,d,d',
+          'd,s,s,s','d,s,s,d','d,s,d,s','d,s,d,d','d,d,s,s','d,d,s,d','d,d,d,s','d,d,d,d'];
+  var st4=['玄孙','玄孙女','玄外孙','玄外孙女','曾外玄孙','曾外玄孙女','曾外玄外孙','曾外玄外孙女',
+           '外玄孙','外玄孙女','外玄外孙','外玄外孙女','外曾外玄孙','外曾外玄孙女','外曾外玄外孙','外曾外玄外孙女'];
+  for(var i=0;i<s4.length;i++) DB[s4[i]]=d(st4[i],-4);
+})();
 
-            // 曾祖辈
-            '父,父,父': '曾祖父',
-            '父,父,母': '曾祖母',
-            '父,母,父': '外曾祖父',
-            '父,母,母': '外曾祖母',
-            '母,父,父': '外曾祖父',
-            '母,父,母': '外曾祖母',
-            '母,母,父': '外曾外祖父',
-            '母,母,母': '外曾外祖母',
+// -- 5-6 代直系（递归生成，避免 key 冲突） --
+(function(){
+  // 生成所有 n-code 的 f/m 组合（直系祖先）
+  function genUpCombos(n) {
+    var result = [];
+    function dfs(current, depth) {
+      if (depth === n) { result.push(current.slice()); return; }
+      dfs(current.concat('f'), depth + 1);
+      dfs(current.concat('m'), depth + 1);
+    }
+    dfs([], 0);
+    return result;
+  }
 
-            // 祖辈的兄弟姐妹
-            '父,父,兄': '伯祖父',
-            '父,父,弟': '叔祖父',
-            '父,父,姐': '姑奶奶',
-            '父,父,妹': '姑奶奶',
-            '父,母,兄': '舅爷爷',
-            '父,母,弟': '舅爷爷',
-            '父,母,姐': '姨奶奶',
-            '父,母,妹': '姨奶奶',
-            '母,父,兄': '舅姥爷',
-            '母,父,弟': '舅姥爷',
-            '母,父,姐': '姨姥姥',
-            '母,父,妹': '姨姥姥',
-            '母,母,兄': '舅姥爷',
-            '母,母,弟': '舅姥爷',
-            '母,母,姐': '姨姥姥',
-            '母,母,妹': '姨姥姥',
+  // 简化命名：纯父系→天/烈，中途有母系→加"外"前缀
+  function upTitle(codes, gen) {
+    var hasM = false;
+    // 最后一位是性别指示(父/母)，检查前面是否有母系
+    for (var i = 0; i < codes.length - 1; i++) {
+      if (codes[i] === 'm') { hasM = true; break; }
+    }
+    var prefix = gen === 5 ? '天' : '烈';
+    if (hasM) prefix = '外' + prefix;
+    return prefix + (codes[codes.length - 1] === 'f' ? '祖父' : '祖母');
+  }
 
-            // 更多堂表亲的孩子
-            '兄,子,子': '侄孙',
-            '兄,子,女': '侄孙女',
-            '弟,子,子': '侄孙',
-            '弟,子,女': '侄孙女',
-            '姐,子,子': '外甥孙',
-            '姐,子,女': '外甥孙女',
-            '妹,子,子': '外甥孙',
-            '妹,子,女': '外甥孙女',
+  // 生成 all-s/d 组合（直系子孙）
+  function genDnCombos(n) {
+    var result = [];
+    function dfs(current, depth) {
+      if (depth === n) { result.push(current.slice()); return; }
+      dfs(current.concat('s'), depth + 1);
+      dfs(current.concat('d'), depth + 1);
+    }
+    dfs([], 0);
+    return result;
+  }
 
-            // 叔叔伯伯的配偶
-            '父,兄,妻': '伯母',
-            '父,弟,妻': '婶婶',
-            '父,姐,夫': '姑父',
-            '父,妹,夫': '姑父',
-            '母,兄,妻': '舅妈',
-            '母,弟,妻': '舅妈',
-            '母,姐,夫': '姨父',
-            '母,妹,夫': '姨父',
+  function dnTitle(codes, gen) {
+    var hasD = false;
+    for (var i = 0; i < codes.length - 1; i++) {
+      if (codes[i] === 'd') { hasD = true; break; }
+    }
+    var prefix = gen === -4 ? '玄' : gen === -5 ? '来' : '晜';
+    if (hasD) prefix = '外' + prefix;
+    return prefix + (codes[codes.length - 1] === 's' ? '孙' : '孙女');
+  }
 
-            // 堂表亲的子女（4层）
-            '父,兄,子,子': '堂侄',
-            '父,兄,子,女': '堂侄女',
-            '父,兄,女,子': '堂外甥',
-            '父,兄,女,女': '堂外甥女',
-            '父,弟,子,子': '堂侄',
-            '父,弟,子,女': '堂侄女',
-            '父,弟,女,子': '堂外甥',
-            '父,弟,女,女': '堂外甥女',
-            '父,姐,子,子': '表侄',
-            '父,姐,子,女': '表侄女',
-            '父,姐,女,子': '表外甥',
-            '父,姐,女,女': '表外甥女',
-            '父,妹,子,子': '表侄',
-            '父,妹,子,女': '表侄女',
-            '父,妹,女,子': '表外甥',
-            '父,妹,女,女': '表外甥女',
-            '母,兄,子,子': '表侄',
-            '母,兄,子,女': '表侄女',
-            '母,兄,女,子': '表外甥',
-            '母,兄,女,女': '表外甥女',
-            '母,弟,子,子': '舅表侄',
-            '母,弟,子,女': '舅表侄女',
-            '母,弟,女,子': '舅表外甥',
-            '母,弟,女,女': '舅表外甥女',
-            '母,姐,子,子': '表侄',
-            '母,姐,子,女': '表侄女',
-            '母,姐,女,子': '表外甥',
-            '母,姐,女,女': '表外甥女',
-            '母,妹,子,子': '表侄',
-            '母,妹,子,女': '表侄女',
-            '母,妹,女,子': '表外甥',
-            '母,妹,女,女': '表外甥女',
+  // Gen 5 ancestors: 5-code keys
+  var up5 = genUpCombos(5);
+  for (var i = 0; i < up5.length; i++) {
+    DB[up5[i].join(',')] = d(upTitle(up5[i], 5), 5);
+  }
 
-            // 曾孙辈（3层向下）
-            '子,子,子': '曾孙',
-            '子,子,女': '曾孙女',
-            '子,女,子': '外曾孙',
-            '子,女,女': '外曾孙女',
-            '女,子,子': '外曾孙',
-            '女,子,女': '外曾孙女',
-            '女,女,子': '外曾外孙',
-            '女,女,女': '外曾外孙女',
+  // Gen 6 ancestors: 6-code keys
+  var up6 = genUpCombos(6);
+  for (var i = 0; i < up6.length; i++) {
+    DB[up6[i].join(',')] = d(upTitle(up6[i], 6), 6);
+  }
 
-            // 玄孙辈（4层向下）
-            '子,子,子,子': '玄孙',
-            '子,子,子,女': '玄孙女',
+  // Gen 5 descendants (gen -5): 5-code keys
+  var dn5 = genDnCombos(5);
+  for (var i = 0; i < dn5.length; i++) {
+    DB[dn5[i].join(',')] = d(dnTitle(dn5[i], -5), -5);
+  }
 
-            // 祖辈兄弟姐妹的子女（4层向上+同辈）
-            '父,父,兄,子': '堂伯/堂叔',
-            '父,父,兄,女': '堂姑',
-            '父,父,弟,子': '堂伯/堂叔',
-            '父,父,弟,女': '堂姑',
-            '父,父,姐,子': '表伯/表叔',
-            '父,父,姐,女': '表姑',
-            '父,父,妹,子': '表伯/表叔',
-            '父,父,妹,女': '表姑',
-            '父,母,兄,子': '表舅',
-            '父,母,兄,女': '表姨',
-            '父,母,弟,子': '表舅',
-            '父,母,弟,女': '表姨',
-            '父,母,姐,子': '表舅',
-            '父,母,姐,女': '表姨',
-            '父,母,妹,子': '表舅',
-            '父,母,妹,女': '表姨',
-            '母,父,兄,子': '表舅',
-            '母,父,兄,女': '表姨',
-            '母,父,弟,子': '表舅',
-            '母,父,弟,女': '表姨',
-            '母,父,姐,子': '表舅',
-            '母,父,姐,女': '表姨',
-            '母,父,妹,子': '表舅',
-            '母,父,妹,女': '表姨',
-            '母,母,兄,子': '表舅',
-            '母,母,兄,女': '表姨',
-            '母,母,弟,子': '表舅',
-            '母,母,弟,女': '表姨',
-            '母,母,姐,子': '表舅',
-            '母,母,姐,女': '表姨',
-            '母,母,妹,子': '表舅',
-            '母,母,妹,女': '表姨',
+  // Gen 6 descendants (gen -6): 6-code keys
+  var dn6 = genDnCombos(6);
+  for (var i = 0; i < dn6.length; i++) {
+    DB[dn6[i].join(',')] = d(dnTitle(dn6[i], -6), -6);
+  }
+})();
 
-            // 侄孙辈的配偶
-            '兄,子,妻': '侄媳妇',
-            '弟,子,妻': '侄媳妇',
-            '姐,子,妻': '外甥媳妇',
-            '妹,子,妻': '外甥媳妇',
-            '兄,女,夫': '侄女婿',
-            '弟,女,夫': '侄女婿',
-            '姐,女,夫': '外甥女婿',
-            '妹,女,夫': '外甥女婿',
+// -- 兄弟姐妹 --
+DB['ob'] = d('哥哥', 0);   DB['lb'] = d('弟弟', 0);
+DB['os'] = d('姐姐', 0);   DB['ls'] = d('妹妹', 0);
 
-            // 孙辈的配偶
-            '子,子,妻': '孙媳妇',
-            '子,女,夫': '孙女婿',
-            '女,子,妻': '外孙媳妇',
-            '女,女,夫': '外孙女婿',
+// -- 父母的兄弟姐妹 --
+DB['f,ob'] = d('伯父', 1); DB['f,lb'] = d('叔父', 1);
+DB['f,os'] = d('姑母', 1); DB['f,ls'] = d('姑母', 1);
+DB['m,ob'] = d('大舅舅', 1); DB['m,lb'] = d('小舅舅', 1);
+DB['m,os'] = d('大姨', 1);  DB['m,ls'] = d('小姨', 1);
 
-            // 儿媳女婿的父母（亲家）
-            '子,妻,父': '亲家公',
-            '子,妻,母': '亲家母',
-            '女,夫,父': '亲家公',
-            '女,夫,母': '亲家母',
+// -- 兄弟姐妹的子女 --
+DB['ob,s'] = d('侄子', -1); DB['ob,d'] = d('侄女', -1);
+DB['lb,s'] = d('侄子', -1); DB['lb,d'] = d('侄女', -1);
+DB['os,s'] = d('外甥', -1); DB['os,d'] = d('外甥女', -1);
+DB['ls,s'] = d('外甥', -1); DB['ls,d'] = d('外甥女', -1);
 
-            // 配偶的祖辈
-            '夫,父,父': '爷爷（公）',
-            '夫,父,母': '奶奶（婆）',
-            '夫,母,父': '外公',
-            '夫,母,母': '外婆',
-            '妻,父,父': '岳祖父',
-            '妻,父,母': '岳祖母',
-            '妻,母,父': '岳外祖父',
-            '妻,母,母': '岳外祖母',
-        };
+// -- 祖父母的兄弟姐妹 --
+DB['f,f,ob'] = d('伯祖父', 2); DB['f,f,lb'] = d('叔祖父', 2);
+DB['f,f,os'] = d('姑祖母', 2); DB['f,f,ls'] = d('姑祖母', 2);
+DB['f,m,ob'] = d('舅祖父', 2); DB['f,m,lb'] = d('舅祖父', 2);
+DB['f,m,os'] = d('姨祖母', 2); DB['f,m,ls'] = d('姨祖母', 2);
+DB['m,f,ob'] = d('外伯祖父', 2); DB['m,f,lb'] = d('外叔祖父', 2);
+DB['m,f,os'] = d('外姑祖母', 2); DB['m,f,ls'] = d('外姑祖母', 2);
+DB['m,m,ob'] = d('外舅祖父', 2); DB['m,m,lb'] = d('外舅祖父', 2);
+DB['m,m,os'] = d('外姨祖母', 2); DB['m,m,ls'] = d('外姨祖母', 2);
 
-        // 反向关系映射（Ta称呼我）
-        const reverseMap = {
-            '': '自己',
-            '父': '儿子/女儿',
-            '母': '儿子/女儿',
-            '兄': '弟弟/妹妹',
-            '弟': '哥哥/姐姐',
-            '姐': '弟弟/妹妹',
-            '妹': '哥哥/姐姐',
-            '子': '爸爸/妈妈',
-            '女': '爸爸/妈妈',
-            '夫': '妻子',
-            '妻': '丈夫',
+// -- 孙辈 --
+DB['s,s,s'] = d('曾孙', -3); DB['s,s,d'] = d('曾孙女', -3);
+DB['s,d,s'] = d('曾外孙', -3); DB['s,d,d'] = d('曾外孙女', -3);
+DB['d,s,s'] = d('外曾孙', -3); DB['d,s,d'] = d('外曾孙女', -3);
+DB['d,d,s'] = d('外曾外孙', -3); DB['d,d,d'] = d('外曾外孙女', -3);
 
-            // 祖辈反向
-            '父,父': '孙子/孙女',
-            '父,母': '孙子/孙女',
-            '母,父': '外孙/外孙女',
-            '母,母': '外孙/外孙女',
+// -- 堂/表兄弟姐妹 --
+DB['f,ob,s'] = d('堂兄', 0, '父亲兄弟的儿子'); DB['f,ob,d'] = d('堂姐', 0);
+DB['f,lb,s'] = d('堂弟', 0); DB['f,lb,d'] = d('堂妹', 0);
+DB['f,os,s'] = d('表兄', 0, '父亲姐妹的儿子'); DB['f,os,d'] = d('表姐', 0);
+DB['f,ls,s'] = d('表弟', 0); DB['f,ls,d'] = d('表妹', 0);
+DB['m,ob,s'] = d('表兄', 0, '母亲兄弟的儿子'); DB['m,ob,d'] = d('表姐', 0);
+DB['m,lb,s'] = d('表弟', 0); DB['m,lb,d'] = d('表妹', 0);
+DB['m,os,s'] = d('表兄', 0, '母亲姐妹的儿子'); DB['m,os,d'] = d('表姐', 0);
+DB['m,ls,s'] = d('表弟', 0); DB['m,ls,d'] = d('表妹', 0);
 
-            // 父辈兄弟姐妹反向
-            '父,兄': '侄子/侄女',
-            '父,弟': '侄子/侄女',
-            '父,姐': '侄子/侄女',
-            '父,妹': '侄子/侄女',
-            '母,兄': '外甥/外甥女',
-            '母,弟': '外甥/外甥女',
-            '母,姐': '外甥/外甥女',
-            '母,妹': '外甥/外甥女',
+// -- 堂表兄弟姐妹的子女 --
+DB['f,ob,s,s'] = d('堂侄', -1); DB['f,ob,s,d'] = d('堂侄女', -1);
+DB['f,lb,s,s'] = d('堂侄', -1); DB['f,lb,s,d'] = d('堂侄女', -1);
+DB['f,os,s,s'] = d('表侄', -1); DB['f,os,s,d'] = d('表侄女', -1);
+DB['m,ob,s,s'] = d('表侄', -1); DB['m,ob,s,d'] = d('表侄女', -1);
+DB['m,os,s,s'] = d('表侄', -1); DB['m,os,s,d'] = d('表侄女', -1);
 
-            // 堂表亲反向（3层）
-            '父,兄,子': '堂弟/堂哥',
-            '父,兄,女': '堂妹/堂姐',
-            '父,弟,子': '堂哥/堂弟',
-            '父,弟,女': '堂姐/堂妹',
-            '父,姐,子': '表弟/表哥',
-            '父,姐,女': '表妹/表姐',
-            '父,妹,子': '表哥/表弟',
-            '父,妹,女': '表姐/表妹',
-            '母,兄,子': '表弟/表哥',
-            '母,兄,女': '表妹/表姐',
-            '母,弟,子': '表哥/表弟',
-            '母,弟,女': '表姐/表妹',
-            '母,姐,子': '表弟/表哥',
-            '母,姐,女': '表妹/表姐',
-            '母,妹,子': '表哥/表弟',
-            '母,妹,女': '表姐/表妹',
+// -- ==================== 复合关系（COMPOUND） ====================
+const COMPOUND = {};
 
-            // 侄辈反向
-            '兄,子': '叔叔/伯伯/姑姑',
-            '兄,女': '叔叔/伯伯/姑姑',
-            '弟,子': '伯伯/叔叔/姑姑',
-            '弟,女': '伯伯/叔叔/姑姑',
-            '姐,子': '舅舅/姨妈',
-            '姐,女': '舅舅/姨妈',
-            '妹,子': '舅舅/姨妈',
-            '妹,女': '舅舅/姨妈',
+function cp(title, gen, codes, note) {
+  var k = codes.join(',');
+  COMPOUND[k] = {title, gen, codes, note:note||''};
+  // 也往 DB 里加一份方便查找
+  DB[k] = d(title, gen, note);
+}
 
-            // 孙辈反向
-            '子,子': '爷爷/奶奶',
-            '子,女': '爷爷/奶奶',
-            '女,子': '外公/外婆',
-            '女,女': '外公/外婆',
+// 配偶方父母
+cp('岳父', 1, ['w','f']); cp('岳母', 1, ['w','m']);
+cp('公公', 1, ['h','f']); cp('婆婆', 1, ['h','m']);
 
-            // 配偶父母反向
-            '夫,父': '儿媳',
-            '夫,母': '儿媳',
-            '妻,父': '女婿',
-            '妻,母': '女婿',
+// 配偶方兄弟姐妹
+cp('大舅子', 0, ['w','ob']); cp('小舅子', 0, ['w','lb']);
+cp('大姨子', 0, ['w','os']); cp('小姨子', 0, ['w','ls']);
+cp('大伯', 0, ['h','ob']); cp('小叔', 0, ['h','lb']);
+cp('大姑', 0, ['h','os']); cp('小姑', 0, ['h','ls']);
 
-            // 配偶兄弟姐妹反向
-            '夫,兄': '弟媳/弟妹',
-            '夫,弟': '嫂子',
-            '夫,姐': '弟妹/弟媳',
-            '夫,妹': '嫂子',
-            '妻,兄': '妹夫',
-            '妻,弟': '姐夫',
-            '妻,姐': '妹夫',
-            '妻,妹': '姐夫',
+// 侄孙 / 外甥孙
+cp('侄孙', -2, ['ob','s','s']); cp('侄孙女', -2, ['ob','s','d']);
+cp('外甥孙', -2, ['os','s','s']); cp('外甥孙女', -2, ['os','s','d']);
 
-            // 兄弟姐妹配偶反向
-            '兄,妻': '小叔子/小姑子',
-            '弟,妻': '大伯子/大姑子',
-            '姐,夫': '小舅子/小姨子',
-            '妹,夫': '大舅子/大姨子',
+// ==================== 元关系组合表（META_COMPOSE） ====================
+// key: "baseTitle,nextCode" → {title, gen}
+const META_COMPOSE = {};
 
-            // 儿媳女婿反向
-            '子,妻': '公公/婆婆',
-            '女,夫': '岳父/岳母',
+function mc(base, code, title, gen) {
+  META_COMPOSE[base + ',' + code] = {title, gen};
+}
 
-            // 曾祖辈反向
-            '父,父,父': '曾孙/曾孙女',
-            '父,父,母': '曾孙/曾孙女',
-            '父,母,父': '外曾孙/外曾孙女',
-            '父,母,母': '外曾孙/外曾孙女',
-            '母,父,父': '外曾孙/外曾孙女',
-            '母,父,母': '外曾孙/外曾孙女',
-            '母,母,父': '外曾外孙/外曾外孙女',
-            '母,母,母': '外曾外孙/外曾外孙女',
+// --- 自己 + 步骤（回退到 DB 查找，这里不重复） ---
 
-            // 祖辈兄弟姐妹反向
-            '父,父,兄': '侄孙/侄孙女',
-            '父,父,弟': '侄孙/侄孙女',
-            '父,父,姐': '侄孙/侄孙女',
-            '父,父,妹': '侄孙/侄孙女',
-            '父,母,兄': '外甥孙/外甥孙女',
-            '父,母,弟': '外甥孙/外甥孙女',
-            '父,母,姐': '外甥孙/外甥孙女',
-            '父,母,妹': '外甥孙/外甥孙女',
-            '母,父,兄': '外甥孙/外甥孙女',
-            '母,父,弟': '外甥孙/外甥孙女',
-            '母,父,姐': '外甥孙/外甥孙女',
-            '母,父,妹': '外甥孙/外甥孙女',
-            '母,母,兄': '外甥孙/外甥孙女',
-            '母,母,弟': '外甥孙/外甥孙女',
-            '母,母,姐': '外甥孙/外甥孙女',
-            '母,母,妹': '外甥孙/外甥孙女',
+// --- 配偶方兄弟的子女 ---
+mc('大舅子','s','内侄',-1); mc('大舅子','d','内侄女',-1);
+mc('小舅子','s','内侄',-1); mc('小舅子','d','内侄女',-1);
+mc('大姨子','s','姨甥',-1); mc('大姨子','d','姨甥女',-1);
+mc('小姨子','s','姨甥',-1); mc('小姨子','d','姨甥女',-1);
 
-            // 侄孙辈反向
-            '兄,子,子': '叔公/伯公/姑婆',
-            '兄,子,女': '叔公/伯公/姑婆',
-            '弟,子,子': '伯公/叔公/姑婆',
-            '弟,子,女': '伯公/叔公/姑婆',
-            '姐,子,子': '舅公/姨婆',
-            '姐,子,女': '舅公/姨婆',
-            '妹,子,子': '舅公/姨婆',
-            '妹,子,女': '舅公/姨婆',
+// --- 配偶方姐妹的子女（丈夫角度） ---
+mc('大伯','s','堂侄',-1);  mc('大伯','d','堂侄女',-1);
+mc('小叔','s','堂侄',-1);  mc('小叔','d','堂侄女',-1);
+mc('大姑','s','表侄',-1);  mc('大姑','d','表侄女',-1);
+mc('小姑','s','表侄',-1);  mc('小姑','d','表侄女',-1);
 
-            // 堂表亲子女反向（4层）- 父系
-            '父,兄,子,子': '堂伯/堂叔',
-            '父,兄,子,女': '堂伯/堂叔',
-            '父,兄,女,子': '堂姑',
-            '父,兄,女,女': '堂姑',
-            '父,弟,子,子': '堂叔/堂伯',
-            '父,弟,子,女': '堂叔/堂伯',
-            '父,弟,女,子': '堂姑',
-            '父,弟,女,女': '堂姑',
-            '父,姐,子,子': '表舅/表姨',
-            '父,姐,子,女': '表舅/表姨',
-            '父,姐,女,子': '表舅/表姨',
-            '父,姐,女,女': '表舅/表姨',
-            '父,妹,子,子': '表舅/表姨',
-            '父,妹,子,女': '表舅/表姨',
-            '父,妹,女,子': '表舅/表姨',
-            '父,妹,女,女': '表舅/表姨',
-            // 堂表亲子女反向（4层）- 母系
-            '母,兄,子,子': '表舅/表姨',
-            '母,兄,子,女': '表舅/表姨',
-            '母,兄,女,子': '表舅/表姨',
-            '母,兄,女,女': '表舅/表姨',
-            '母,弟,子,子': '表舅/表姨',
-            '母,弟,子,女': '表舅/表姨',
-            '母,弟,女,子': '表舅/表姨',
-            '母,弟,女,女': '表舅/表姨',
-            '母,姐,子,子': '表舅/表姨',
-            '母,姐,子,女': '表舅/表姨',
-            '母,姐,女,子': '表舅/表姨',
-            '母,姐,女,女': '表舅/表姨',
-            '母,妹,子,子': '表舅/表姨',
-            '母,妹,子,女': '表舅/表姨',
-            '母,妹,女,子': '表舅/表姨',
-            '母,妹,女,女': '表舅/表姨',
+// --- 内侄的子女 ---
+mc('内侄','s','内侄孙',-2); mc('内侄','d','内侄孙女',-2);
+mc('内侄女','s','内侄孙',-2); mc('内侄女','d','内侄孙女',-2);
+mc('内侄孙','s','内侄曾孙',-3); mc('内侄孙','d','内侄曾孙女',-3);
 
-            // 曾孙辈反向
-            '子,子,子': '曾祖父/曾祖母',
-            '子,子,女': '曾祖父/曾祖母',
-            '子,女,子': '外曾祖父/外曾祖母',
-            '子,女,女': '外曾祖父/外曾祖母',
-            '女,子,子': '外曾祖父/外曾祖母',
-            '女,子,女': '外曾祖父/外曾祖母',
-            '女,女,子': '外曾外祖父/外曾外祖母',
-            '女,女,女': '外曾外祖父/外曾外祖母',
+// --- 姨甥的子女 ---
+mc('姨甥','s','姨甥孙',-2); mc('姨甥','d','姨甥孙女',-2);
+mc('姨甥女','s','姨甥孙',-2); mc('姨甥女','d','姨甥孙女',-2);
 
-            // 叔叔伯伯配偶反向
-            '父,兄,妻': '侄子/侄女',
-            '父,弟,妻': '侄子/侄女',
-            '父,姐,夫': '内侄/内侄女',
-            '父,妹,夫': '内侄/内侄女',
-            '母,兄,妻': '外甥/外甥女',
-            '母,弟,妻': '外甥/外甥女',
-            '母,姐,夫': '姨甥/姨甥女',
-            '母,妹,夫': '姨甥/姨甥女',
-        };
+// --- 堂侄的子女 ---
+mc('堂侄','s','堂侄孙',-2); mc('堂侄','d','堂侄孙女',-2);
+mc('堂侄女','s','堂侄孙',-2); mc('堂侄女','d','堂侄孙女',-2);
 
-        function addRelation(rel) {
-            chain.push(rel);
-            updateDisplay();
+// --- 表侄的子女 ---
+mc('表侄','s','表侄孙',-2); mc('表侄','d','表侄孙女',-2);
+mc('表侄女','s','表侄孙',-2); mc('表侄女','d','表侄孙女',-2);
+
+// --- 侄孙的子女 ---
+mc('侄孙','s','侄曾孙',-3); mc('侄孙','d','侄曾孙女',-3);
+
+// --- 外甥孙的子女 ---
+mc('外甥孙','s','外甥曾孙',-3); mc('外甥孙','d','外甥曾孙女',-3);
+
+// --- 岳父母/公婆的兄弟 ---
+mc('岳父','ob','岳伯父',1); mc('岳父','lb','岳叔父',1);
+mc('岳父','os','岳姑母',1); mc('岳父','ls','岳姑母',1);
+mc('岳母','ob','岳舅父',1); mc('岳母','lb','岳舅父',1);
+mc('岳母','os','岳姨母',1); mc('岳母','ls','岳姨母',1);
+mc('公公','ob','伯公公',1); mc('公公','lb','叔公公',1);
+mc('公公','os','姑婆婆',1); mc('公公','ls','姑婆婆',1);
+mc('婆婆','ob','舅公公',1); mc('婆婆','lb','舅公公',1);
+mc('婆婆','os','姨婆婆',1); mc('婆婆','ls','姨婆婆',1);
+
+// --- 伯父/叔父/姑母/舅父/姨母的子女 ---
+// 这些在 DB 里已经有了（堂/表兄弟），但作为 META_COMPOSE 节点方便递归
+mc('伯父','s','堂兄',0);  mc('伯父','d','堂姐',0);
+mc('叔父','s','堂弟',0);  mc('叔父','d','堂妹',0);
+mc('姑母','s','表兄',0);  mc('姑母','d','表姐',0);
+mc('舅父','s','表兄',0);  mc('舅父','d','表姐',0);
+mc('姨母','s','表兄',0);  mc('姨母','d','表姐',0);
+mc('小舅舅','s','表兄',0); mc('小舅舅','d','表姐',0);
+mc('大舅舅','s','表兄',0); mc('大舅舅','d','表姐',0);
+mc('大姨','s','表兄',0);   mc('大姨','d','表姐',0);
+mc('小姨','s','表兄',0);   mc('小姨','d','表姐',0);
+
+// --- 堂兄弟姐妹的子女 ---
+mc('堂兄','s','堂侄',-1); mc('堂兄','d','堂侄女',-1);
+mc('堂弟','s','堂侄',-1); mc('堂弟','d','堂侄女',-1);
+
+// --- 表兄弟姐妹的子女 ---
+mc('表兄','s','表侄',-1); mc('表兄','d','表侄女',-1);
+mc('表弟','s','表侄',-1); mc('表弟','d','表侄女',-1);
+mc('表姐','s','表侄',-1); mc('表姐','d','表侄女',-1);
+mc('表妹','s','表侄',-1); mc('表妹','d','表侄女',-1);
+
+// --- 侄子/侄女/外甥/外甥女的子女 ---
+mc('侄子','s','侄孙',-2); mc('侄子','d','侄孙女',-2);
+mc('侄女','s','侄孙',-2); mc('侄女','d','侄孙女',-2);
+mc('外甥','s','外甥孙',-2); mc('外甥','d','外甥孙女',-2);
+mc('外甥女','s','外甥孙',-2); mc('外甥女','d','外甥孙女',-2);
+
+// --- 父亲 / 母亲的兄弟扩展（父亲→伯父/叔父 已在 DB，这里做递归支持） ---
+mc('父亲','ob','伯父',1); mc('父亲','lb','叔父',1);
+mc('父亲','os','姑母',1); mc('父亲','ls','姑母',1);
+mc('母亲','ob','舅父',1); mc('母亲','lb','舅父',1);
+mc('母亲','os','姨母',1); mc('母亲','ls','姨母',1);
+
+// --- 祖父/祖母 → 伯祖父等 ---
+mc('祖父','ob','伯祖父',2); mc('祖父','lb','叔祖父',2);
+mc('祖父','os','姑祖母',2); mc('祖父','ls','姑祖母',2);
+mc('祖母','ob','舅祖父',2); mc('祖母','lb','舅祖父',2);
+mc('祖母','os','姨祖母',2); mc('祖母','ls','姨祖母',2);
+mc('外祖父','ob','外伯祖父',2); mc('外祖父','lb','外叔祖父',2);
+mc('外祖父','os','外姑祖母',2); mc('外祖父','ls','外姑祖母',2);
+mc('外祖母','ob','外舅祖父',2); mc('外祖母','lb','外舅祖父',2);
+mc('外祖母','os','外姨祖母',2); mc('外祖母','ls','外姨祖母',2);
+
+// --- 岳伯父等的子女（配偶的表/堂兄弟姐妹） ---
+mc('岳伯父','s','岳堂兄',0); mc('岳伯父','d','岳堂姐',0);
+mc('岳叔父','s','岳堂兄',0); mc('岳叔父','d','岳堂姐',0);
+
+// --- 伯祖父等的子女（父亲的堂兄弟） ---
+mc('伯祖父','s','堂伯父',1); mc('伯祖父','d','堂姑母',1);
+mc('叔祖父','s','堂叔父',1); mc('叔祖父','d','堂姑母',1);
+mc('姑祖母','s','表伯父',1); mc('姑祖母','d','表姑母',1);
+
+// --- 堂伯父/堂叔父的子女（再从兄弟姐妹） ---
+mc('堂伯父','s','再从兄',0); mc('堂伯父','d','再从姐',0);
+mc('堂叔父','s','再从弟',0); mc('堂叔父','d','再从妹',0);
+
+// --- 再从兄弟的子女 ---
+mc('再从兄','s','再从侄',-1); mc('再从兄','d','再从侄女',-1);
+mc('再从弟','s','再从侄',-1); mc('再从弟','d','再从侄女',-1);
+
+// --- 儿子的妻子 / 女儿的丈夫 ---
+mc('儿子','w','儿媳',-1); mc('女儿','h','女婿',-1);
+mc('孙子','w','孙媳',-2); mc('孙女','h','孙女婿',-2);
+
+// --- 姑母/姨母/舅母的丈夫 ---
+mc('姑母','h','姑父',0); mc('姨母','h','姨父',0);
+mc('小舅','w','舅母',0); mc('大舅','w','舅母',0);
+mc('伯父','w','伯母',0); mc('叔父','w','叔母',0);
+
+// ==================== 引擎核心 ====================
+
+function codesToString(codes) {
+  return codes.join(',');
+}
+
+// 纯文本查找（用于 parseText）
+const TEXT_TO_CODE = {
+  '爸':'f','爸爸':'f','父亲':'f','爹':'f',
+  '妈':'m','妈妈':'m','母亲':'m','娘':'m',
+  '夫':'h','丈夫':'h','老公':'h','先生':'h',
+  '妻':'w','妻子':'w','老婆':'w','太太':'w',
+  '哥':'ob','哥哥':'ob','兄':'ob',
+  '弟':'lb','弟弟':'lb',
+  '姐':'os','姐姐':'os',
+  '妹':'ls','妹妹':'ls',
+  '儿':'s','儿子':'s','子':'s',
+  '女':'d','女儿':'d',
+  '爷':'f,f','爷爷':'f,f','祖父':'f,f',
+  '奶':'f,m','奶奶':'f,m','祖母':'f,m',
+  '外公':'m,f','姥爷':'m,f','外祖父':'m,f',
+  '外婆':'m,m','姥姥':'m,m','外祖母':'m,m',
+};
+
+// 反向查找用的代码到中文映射
+const CODE_TO_CH = {
+  'h':'丈夫','w':'妻子','f':'父亲','m':'母亲',
+  'ob':'哥哥','lb':'弟弟','os':'姐姐','ls':'妹妹',
+  's':'儿子','d':'女儿',
+};
+
+function parseText(text) {
+  // 按"的"分割
+  var parts = text.split('的').map(function(p){return p.trim();}).filter(Boolean);
+  var codes = [];
+  for (var i = 0; i < parts.length; i++) {
+    var p = parts[i];
+    // 处理 "XX的XX的XX"
+    if (TEXT_TO_CODE[p]) {
+      codes.push(TEXT_TO_CODE[p]);
+    } else {
+      // 尝试组合解析：如 "弟弟的" → lb
+      var found = false;
+      for (var key in TEXT_TO_CODE) {
+        if (p.indexOf(key) === 0) {
+          codes.push(TEXT_TO_CODE[key]);
+          found = true;
+          break;
         }
+      }
+      if (!found) return null; // 无法解析
+    }
+  }
+  return codes;
+}
 
-        function backspace() {
-            if (chain.length > 0) {
-                chain.pop();
-                updateDisplay();
-            }
+function codesToText(codes) {
+  return codes.map(function(c){ return CODE_TO_CH[c] || c; }).join('的');
+}
+
+// 在 DB/COMPOUND 中查找最长已知前缀
+// 返回 {result: {title,gen,note}, codes: matchedCodes}
+function findLongestPrefix(codes) {
+  var bestLen = 0, bestResult = null, bestCodes = [];
+  for (var len = codes.length; len >= 0; len--) {
+    var key = codes.slice(0, len).join(',');
+    if (DB[key]) {
+      bestLen = len; bestResult = DB[key]; bestCodes = codes.slice(0, len);
+      break;
+    }
+  }
+  return {result: bestResult, codes: bestCodes, len: bestLen};
+}
+
+// 核心计算函数
+function calculate(codes, gender) {
+  if (!codes || codes.length === 0) {
+    return { title: '自己', gen: 0, note: '', chain: '', tags: [] };
+  }
+
+  var chainStr = codesToString(codes);
+
+  // STEP 1: 精确匹配 DB
+  if (DB[chainStr]) {
+    var r = DB[chainStr];
+    if (r.maleOnly && gender !== 'male') {
+      return { title: '（仅限男性）', gen: r.gen, note: '此称谓仅适用于男性', chain: chainStr, tags: [] };
+    }
+    // 堂/表兄弟姐妹年龄歧义：显示兄/弟或姐/妹两种可能
+    var COUSIN_VARS = {
+      '堂兄':['堂兄','堂弟'],'堂弟':['堂兄','堂弟'],'堂姐':['堂姐','堂妹'],'堂妹':['堂姐','堂妹'],
+      '表兄':['表兄','表弟'],'表弟':['表兄','表弟'],'表姐':['表姐','表妹'],'表妹':['表姐','表妹']
+    };
+    if (COUSIN_VARS[r.title]) {
+      var vars = COUSIN_VARS[r.title];
+      return { title: vars.join(' / '), gen: r.gen, note: '年龄不同称谓不同，以实际年龄为准', chain: chainStr, tags: vars };
+    }
+    return { title: r.title, gen: r.gen, note: r.note || '', chain: chainStr, tags: [] };
+  }
+
+  // STEP 2: 去除年龄修饰符后重试
+  var stripped = codes.filter(function(c){ return c !== '&o' && c !== '&l'; });
+  if (stripped.length < codes.length) return calculate(stripped, gender);
+
+  // STEP 3: xb/xs 通配符替换
+  var hasWild = codes.indexOf('xb') >= 0 || codes.indexOf('xs') >= 0;
+  if (hasWild) {
+    var expanded = expandWildcards(codes);
+    if (expanded.length > 1) {
+      var titles = [];
+      for (var i = 0; i < expanded.length; i++) {
+        var er = calculate(expanded[i], gender);
+        if (er.title && er.title !== '（仅限男性）') titles.push(er.title);
+      }
+      if (titles.length > 0) {
+        var uniqueTitles = [];
+        for (var ti = 0; ti < titles.length; ti++) {
+          if (uniqueTitles.indexOf(titles[ti]) < 0) uniqueTitles.push(titles[ti]);
         }
+        return { title: uniqueTitles.join('/'), gen: calculate(expanded[0], gender).gen, note: '可能存在多种称谓', chain: chainStr, tags: uniqueTitles };
+      }
+    }
+  }
 
-        function clearAll() {
-            chain = [];
-            isReverse = false;
-            updateDisplay();
-        }
+  // STEP 4: 检查表/堂兄弟歧义（仅3步链：父母兄弟姐妹→其子女）
+  if (codes.length === 3 && (codes[codes.length-1] === 's' || codes[codes.length-1] === 'd')) {
+    var cousinCheck = checkCousinAmbiguity(codes, gender);
+    if (cousinCheck) return cousinCheck;
+  }
 
-        function mutualCheck() {
-            isReverse = !isReverse;
-            updateDisplay();
-        }
+  // STEP 5: ★ 元关系组合（META_COMPOSITION）★
+  // 找最长已知前缀 → META_COMPOSE 查下一步 → 递归
+  var mcResult = metaCompose(codes, gender, 0);
+  if (mcResult) return mcResult;
 
-        function getRelationKey() {
-            return chain.join(',');
-        }
+  // STEP 6: 基于辈分的兜底计算
+  return generationFallback(codes, gender);
 
-        function calculateRelation() {
-            const key = getRelationKey();
-            if (isReverse) {
-                return reverseMap[key] || '关系太远啦';
-            } else {
-                return relationMap[key] || '关系太远啦';
-            }
-        }
+  return { title: '？', gen: 0, note: '暂时无法计算此关系', chain: chainStr, tags: [] };
+}
 
-        function updateDisplay() {
-            const chainEl = document.getElementById('chain');
-            const targetEl = document.getElementById('target');
-            const labelEl = document.querySelector('.result .label');
+function expandWildcards(codes) {
+  // xb → ob 或 lb（兄或弟）
+  // xs → os 或 ls（姐或妹）
+  var result = [[]];
+  for (var i = 0; i < codes.length; i++) {
+    var c = codes[i];
+    var next = [];
+    if (c === 'xb') {
+      for (var j = 0; j < result.length; j++) {
+        next.push(result[j].concat(['ob']));
+        next.push(result[j].concat(['lb']));
+      }
+    } else if (c === 'xs') {
+      for (var j = 0; j < result.length; j++) {
+        next.push(result[j].concat(['os']));
+        next.push(result[j].concat(['ls']));
+      }
+    } else {
+      for (var j = 0; j < result.length; j++) {
+        next.push(result[j].concat([c]));
+      }
+    }
+    result = next;
+  }
+  return result;
+}
 
-            if (chain.length === 0) {
-                chainEl.textContent = '我的';
-            } else {
-                chainEl.textContent = '我的' + chain.join('的');
-            }
+function checkCousinAmbiguity(codes, gender) {
+  // 当遇到表中/堂兄弟的歧义（如 f,os,s 可能是表兄或表弟）
+  // 仅适用于父母兄弟姐妹的子女，排除配偶方关系
+  var prefix = codes.slice(0, -1);
+  var prefixKey = prefix.join(',');
+  var prefixR = DB[prefixKey];
+  if (!prefixR) {
+    var lp = findLongestPrefix(prefix);
+    if (lp.result) prefixR = lp.result;
+  }
 
-            const result = calculateRelation();
-            targetEl.textContent = result;
+  if (!prefixR) return null;
+  var t = prefixR.title;
 
-            if (isReverse) {
-                labelEl.textContent = 'Ta称呼我 ';
-            } else {
-                labelEl.textContent = '我称呼Ta ';
-            }
-        }
+  // 排除配偶方关系和中间态关系
+  var spouseTitles = ['大舅子','小舅子','大姨子','小姨子','大伯','小叔','大姑','小姑',
+    '内侄','内侄女','内侄孙','内侄孙女','内侄曾孙','内侄曾孙女','姨甥','姨甥女','姨甥孙','姨甥孙女',
+    '岳父','岳母','岳伯父','岳叔父','岳姑母','岳舅父','岳姨母',
+    '公公','婆婆','伯公公','叔公公','姑婆婆','舅公公','姨婆婆',
+    '岳堂兄','岳堂姐'];
+  for (var i = 0; i < spouseTitles.length; i++) {
+    if (t === spouseTitles[i]) return null;
+  }
 
-        // 初始化
-        updateDisplay();
-    </script>
+  // 检查父系还是母系
+  var isPatrilineal = prefixKey.indexOf('f,ob,') === 0 || prefixKey.indexOf('f,lb,') === 0 ||
+    prefixKey === 'f,ob' || prefixKey === 'f,lb' ||
+    prefixKey.indexOf('f,f,ob') === 0 || prefixKey.indexOf('f,f,lb') === 0;
+  var isMatrilineal = prefixKey.indexOf('f,os') === 0 || prefixKey.indexOf('f,ls') === 0 ||
+    prefixKey.indexOf('m,') === 0;
 
+  if (!isPatrilineal && !isMatrilineal) return null;
 
-</body></html>
+  var lastC = codes[codes.length - 1];
+  var titles = isPatrilineal
+    ? (lastC === 's' ? ['堂兄', '堂弟'] : ['堂姐', '堂妹'])
+    : (lastC === 's' ? ['表兄', '表弟'] : ['表姐', '表妹']);
+
+  return {
+    title: titles.join('/'),
+    gen: 0,
+    note: '年龄未知，可能存在多种称谓',
+    chain: codesToString(codes),
+    tags: titles
+  };
+}
+
+// ★ 核心：元关系组合
+function metaCompose(codes, gender, depth) {
+  if (depth > 10) return null; // 防止无穷递归
+
+  // 找最长已知前缀
+  var lp = findLongestPrefix(codes);
+  if (!lp.result || lp.len === 0) return null;
+
+  var remaining = codes.slice(lp.len);
+  if (remaining.length === 0) {
+    // 前缀就是全部——直接返回 DB 中的结果
+    return formatResult(lp.result, codesToString(codes), [lp.result.title]);
+  }
+
+  // 尝试用 META_COMPOSE 将已知前缀扩展一步
+  var nextCode = remaining[0];
+  var baseTitle = lp.result.title;
+  var mcKey = baseTitle + ',' + nextCode;
+
+  if (META_COMPOSE[mcKey]) {
+    var mc = META_COMPOSE[mcKey];
+    var newResult = { title: mc.title, gen: mc.gen, note: '' };
+
+    if (remaining.length === 1) {
+      return formatResult(newResult, codesToString(codes), [newResult.title]);
+    }
+
+    // 递归处理剩余的
+    var rest = remaining.slice(1);
+    // 构造新的"已知前缀"作为递归起点
+    var recursiveInput = [mc.title]; // 把新结果作为虚拟的"一步"
+    // 但我们需要用实际代码继续递归
+
+    // 更好的做法：用新复合关系的 children
+    // 例如：大舅子 + d → 内侄女，然后 内侄女 + s → 内侄孙
+    var subResult = metaComposeFromBase(mc.title, rest, gender, depth + 1);
+    if (subResult) return subResult;
+
+    return formatResult(newResult, codesToString(codes), [newResult.title]);
+  }
+
+  return null;
+}
+
+function metaComposeFromBase(baseTitle, remainingCodes, gender, depth) {
+  if (remainingCodes.length === 0) {
+    // 找 baseTitle 在 DB/COMPOUND 中的信息
+    for (var k in DB) {
+      if (DB[k].title === baseTitle) return formatResult(DB[k], k, [baseTitle]);
+    }
+    return { title: baseTitle, gen: 0, note: '', chain: '', tags: [baseTitle] };
+  }
+  if (depth > 10) return null;
+
+  var nextCode = remainingCodes[0];
+  var mcKey = baseTitle + ',' + nextCode;
+
+  if (META_COMPOSE[mcKey]) {
+    var mc = META_COMPOSE[mcKey];
+    var newTitle = mc.title;
+    return metaComposeFromBase(newTitle, remainingCodes.slice(1), gender, depth + 1);
+  }
+
+  return null;
+}
+
+function formatResult(dbResult, chain, tags) {
+  return {
+    title: dbResult.title || '',
+    gen: dbResult.gen || 0,
+    note: dbResult.note || '',
+    chain: chain,
+    tags: tags || [dbResult.title]
+  };
+}
+
+// 基于辈分的兜底计算
+function generationFallback(codes, gender) {
+  var gen = 0;
+  var chain = codesToString(codes);
+
+  for (var i = 0; i < codes.length; i++) {
+    switch (codes[i]) {
+      case 'f': case 'm': gen++; break;
+      case 's': case 'd': gen--; break;
+      default: break; // h,w,ob,lb,os,ls 不改变辈分
+    }
+  }
+
+  if (gen > 0) {
+    var genNames = ['', '父/母', '祖父/母', '曾祖', '高祖', '天祖', '烈祖'];
+    var adj = (gen <= 6 && genNames[gen]) ? genNames[gen] : gen + '代';
+    return {
+      title: adj + '长辈',
+      gen: gen,
+      note: '辈分推算（具体称谓取决于关系路径）',
+      chain: chain,
+      tags: []
+    };
+  } else if (gen < 0) {
+    var dGen = -gen;
+    var genNamesDn = ['', '子/女', '孙辈', '曾孙', '玄孙', '来孙', '晜孙'];
+    var adj = (dGen <= 6 && genNamesDn[dGen]) ? genNamesDn[dGen] : dGen + '代';
+    return {
+      title: adj + '晚辈',
+      gen: gen,
+      note: '辈分推算（具体称谓取决于关系路径）',
+      chain: chain,
+      tags: []
+    };
+  } else {
+    // 同辈
+    return {
+      title: '同辈亲戚',
+      gen: 0,
+      note: '具体称谓取决于年龄和关系',
+      chain: chain,
+      tags: []
+    };
+  }
+}
+
+// ==================== UI 状态与交互 ====================
+
+let currentSteps = [];
+var toastTimer = null;
+
+function toast(msg) {
+  var el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ el.remove(); }, 2000);
+}
+
+function addStep(code) {
+  if (currentSteps.length >= 12) {
+    toast('关系链已达上限');
+    return;
+  }
+  currentSteps.push(code);
+  updateDisplay();
+}
+
+function undoStep() {
+  if (currentSteps.length === 0) {
+    toast('没有可撤销的步骤');
+    return;
+  }
+  currentSteps.pop();
+  updateDisplay();
+}
+
+function clearSteps() {
+  currentSteps = [];
+  updateDisplay();
+}
+
+function updateDisplay() {
+  var chainEl = document.getElementById('displayChain');
+  var resultEl = document.getElementById('displayResult');
+  var noteEl = document.getElementById('displayNote');
+  var tagsEl = document.getElementById('displayTags');
+
+  // 渲染关系链
+  if (currentSteps.length === 0) {
+    chainEl.innerHTML = '';
+  } else {
+    chainEl.innerHTML = currentSteps.map(function(c){
+      return '<span class="chip">' + (CODE_TO_CH[c] || c) + '</span>';
+    }).join('<span style="color:#D4789B;margin:0 2px;">→</span>');
+  }
+
+  // 计算结果
+  var result = calculate(currentSteps, 'male');
+
+  resultEl.textContent = result.title || '？';
+  noteEl.textContent = result.note || '';
+
+  // 标签
+  tagsEl.innerHTML = '';
+  if (result.tags && result.tags.length > 0) {
+    for (var i = 0; i < result.tags.length; i++) {
+      var tag = document.createElement('span');
+      tag.className = 'display-tag';
+      tag.textContent = result.tags[i];
+      tagsEl.appendChild(tag);
+    }
+  }
+}
+
+// 初始化
+window.addEventListener('DOMContentLoaded', function(){
+  currentSteps = [];
+  updateDisplay();
+});
+</script>
+</body>
+</html>
