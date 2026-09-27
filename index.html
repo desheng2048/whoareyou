@@ -711,6 +711,46 @@ mc('再从弟','s','再从侄',-1); mc('再从弟','d','再从侄女',-1);
 mc('儿子','w','儿媳',-1); mc('女儿','h','女婿',-1);
 mc('孙子','w','孙媳',-2); mc('孙女','h','孙女婿',-2);
 
+// ==================== ★ 方案A升级：配偶合并 + 姻亲纵深规约规则 ★ ====================
+
+// --- 兄弟姐妹的配偶（此前完全缺失的嫂子/弟媳/姐夫/妹夫） ---
+mc('哥哥','w','嫂子',0); mc('弟弟','w','弟媳',0);
+mc('姐姐','h','姐夫',0); mc('妹妹','h','妹夫',0);
+
+// --- 长辈配偶补全（此前 META_COMPOSE 用了不存在的"大舅/小舅/姨母"标题） ---
+mc('大舅舅','w','舅母',1); mc('小舅舅','w','舅母',1);
+mc('大姨','h','姨父',1); mc('小姨','h','姨父',1);
+
+// --- 配偶兄弟姐妹的配偶（连襟/妯娌） ---
+mc('大姨子','h','连襟',0); mc('小姨子','h','连襟',0);
+mc('大舅子','w','舅嫂',0); mc('小舅子','w','舅弟媳',0);
+mc('大伯','w','妯娌',0); mc('小叔','w','妯娌',0);
+
+// --- 亲家（子女配偶的父母） ---
+mc('女婿','f','亲家公',1); mc('女婿','m','亲家母',1);
+mc('儿媳','f','亲家公',1); mc('儿媳','m','亲家母',1);
+
+// --- 岳家/婆家祖辈纵深 ---
+mc('岳父','f','岳祖父',2); mc('岳父','m','岳祖母',2);
+mc('岳母','f','岳外祖父',2); mc('岳母','m','岳外祖母',2);
+mc('公公','f','祖公公',2); mc('公公','m','祖婆婆',2);
+
+// --- 曾祖辈的兄弟姐妹（曾伯叔祖父/曾姑祖母） ---
+mc('曾祖父','ob','曾伯祖父',3); mc('曾祖父','lb','曾叔祖父',3);
+mc('曾祖父','os','曾姑祖母',3); mc('曾祖父','ls','曾姑祖母',3);
+mc('外曾祖父','ob','外曾伯祖父',3); mc('外曾祖父','lb','外曾叔祖父',3);
+mc('外曾祖父','os','外曾姑祖母',3); mc('外曾祖父','ls','外曾姑祖母',3);
+mc('曾伯祖父','s','堂祖父',2); mc('曾叔祖父','s','堂祖父',2);
+mc('堂祖父','s','堂伯父',1); mc('堂祖父','d','堂姑母',1);
+
+// --- 姻亲配偶的子女延续（姐夫的孩子=外甥 等） ---
+mc('姐夫','s','外甥',-1); mc('姐夫','d','外甥女',-1);
+mc('妹夫','s','外甥',-1); mc('妹夫','d','外甥女',-1);
+mc('嫂子','s','侄子',-1); mc('嫂子','d','侄女',-1);
+mc('弟媳','s','侄子',-1); mc('弟媳','d','侄女',-1);
+mc('连襟','s','姨甥',-1); mc('连襟','d','姨甥女',-1);
+mc('妯娌','s','侄子',-1); mc('妯娌','d','侄女',-1);
+
 // --- 姑母/姨母/舅母的丈夫 ---
 mc('姑母','h','姑父',0); mc('姨母','h','姨父',0);
 mc('小舅','w','舅母',0); mc('大舅','w','舅母',0);
@@ -850,6 +890,10 @@ function calculate(codes, gender) {
   // 找最长已知前缀 → META_COMPOSE 查下一步 → 递归
   var mcResult = metaCompose(codes, gender, 0);
   if (mcResult) return mcResult;
+
+  // STEP 5.5: 纯祖先/纯子孙链（7代及以上，无上限称谓）
+  var pureResult = pureChainTitle(codes);
+  if (pureResult) return pureResult;
 
   // STEP 6: 基于辈分的兜底计算
   return generationFallback(codes, gender);
@@ -1005,6 +1049,52 @@ function formatResult(dbResult, chain, tags) {
     chain: chain,
     tags: tags || [dbResult.title]
   };
+}
+
+// 纯祖先链（全 f/m）或纯子孙链（全 s/d）的称谓（≥7代，DB 静态表未覆盖的部分）
+// 命名沿用中国传统辈分序列：太祖(7) 远祖(8) 鼻祖(9) / 仍孙(7) 云孙(8) 耳孙(9)
+var GEN_UP_NAME = {7:'太', 8:'远', 9:'鼻'};
+var GEN_DN_NAME = {7:'仍', 8:'云', 9:'耳'};
+
+function pureChainTitle(codes) {
+  if (codes.length < 7) return null;
+  var n = codes.length;
+  var allUp = true, allDn = true;
+  for (var i = 0; i < n; i++) {
+    if (codes[i] !== 'f' && codes[i] !== 'm') allUp = false;
+    if (codes[i] !== 's' && codes[i] !== 'd') allDn = false;
+  }
+
+  if (allUp) {
+    // "外"前缀：末位是性别指示，只检查前面是否有母系
+    var hasM = false;
+    for (var i = 0; i < n - 1; i++) if (codes[i] === 'm') { hasM = true; break; }
+    var prefix = GEN_UP_NAME[n] || (n + '世');
+    if (hasM) prefix = '外' + prefix;
+    return {
+      title: prefix + (codes[n-1] === 'f' ? '祖父' : '祖母'),
+      gen: n,
+      note: n > 9 ? '第' + n + '代直系祖先' : '',
+      chain: codesToString(codes),
+      tags: []
+    };
+  }
+
+  if (allDn) {
+    var hasD = false;
+    for (var i = 0; i < n - 1; i++) if (codes[i] === 'd') { hasD = true; break; }
+    var prefix = GEN_DN_NAME[n] || (n + '世');
+    if (hasD) prefix = '外' + prefix;
+    return {
+      title: prefix + (codes[n-1] === 's' ? '孙' : '孙女'),
+      gen: -n,
+      note: n > 9 ? '第' + n + '代直系子孙' : '',
+      chain: codesToString(codes),
+      tags: []
+    };
+  }
+
+  return null;
 }
 
 // 基于辈分的兜底计算
